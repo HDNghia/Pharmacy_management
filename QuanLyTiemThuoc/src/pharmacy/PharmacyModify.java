@@ -1,5 +1,6 @@
 package pharmacy;
 
+import java.awt.JobAttributes;
 import java.sql.Connection;
 
 import java.sql.DriverManager;
@@ -95,7 +96,7 @@ public class PharmacyModify {
             	
             }
 		} catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+			JOptionPane.showMessageDialog(null, "MÃ THUỐC NÀY KHÔNG TỒN TẠI!","TÌM THẤT BẠI!",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -125,7 +126,7 @@ public class PharmacyModify {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management", "root", "");
             
             //query
-            String sql = "insert into pharmacy(mathuoc,tensanpham, dvt, gia, soluong, cachdung,hansudung) values(?,?, ?, ?, ?, ?, ?)";
+            String sql = "insert into pharmacy(mathuoc,tensanpham, dvt, gia, soluong, cachdung, hansudung) values(?,?, ?, ?, ?, ?,?)";
             statement = connection.prepareCall(sql);
             
             statement.setString(1, std.getId());
@@ -134,13 +135,15 @@ public class PharmacyModify {
             statement.setDouble(4, std.getGia());
             statement.setInt(5, std.getSoluong());
             statement.setString(6, std.getCachdung());
-            statement.setString(7, std.getHSD());
+            statement.setString(7,std.getHSD());
             
             statement.execute();
             System.out.println("Them thanh cong");
+            JOptionPane.showMessageDialog(null, "THÊM THUỐC THÀNH CÔNG", "THÔNG TIN",
+					JOptionPane.INFORMATION_MESSAGE);
             
         } catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "THUỐC NÀY ĐÃ TỒN TẠI!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -183,8 +186,10 @@ public class PharmacyModify {
             //statement.setString(6, id);
             
             statement.execute();
+            JOptionPane.showMessageDialog(null, "CẬP NHẬT THUỐC THÀNH CÔNG", "THÔNG TIN",
+					JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "THUỐC NÀY KHÔNG TỒN TẠI!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -267,7 +272,7 @@ public class PharmacyModify {
             	pharmacyList.add(std);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "KHÔNG TÌM THẤY THUỐC","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -346,21 +351,24 @@ public class PharmacyModify {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management", "root", "");
             
             //query
-            String sql = "insert into nhanvien(tennhanvien, ngaysinh, gioitinh, hocvan, sodienthoai, diachi) values(?,?,?,?,?,?)";
+            String sql = "insert into nhanvien(id,tennhanvien, ngaysinh, gioitinh, hocvan, sodienthoai, diachi) values(?,?,?,?,?,?,?)";
             statement = connection.prepareCall(sql);
             
-            statement.setString(1, std.getHovaten());
-            statement.setString(2, std.getNgaysinh());
-            statement.setString(3, std.getGioitinh());
-            statement.setString(4, std.getHocvan());
-            statement.setInt(5, std.getSodienthoai());
-            statement.setString(6, std.getDiachi());
+            statement.setString(1, std.getID());
+            statement.setString(2, std.getHovaten());
+            statement.setString(3, std.getNgaysinh());
+            statement.setString(4, std.getGioitinh());
+            statement.setString(5, std.getHocvan());
+            statement.setInt(6, std.getSodienthoai());
+            statement.setString(7, std.getDiachi());
             
             statement.execute();
             System.out.println("Them thanh cong");
+            JOptionPane.showMessageDialog(null, "THÊM NHÂN VIÊN THÀNH CÔNG", "THÔNG TIN",
+					JOptionPane.INFORMATION_MESSAGE);
             
         } catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "NHÂN VIÊN NÀY ĐÃ TỒN TẠI!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -380,7 +388,7 @@ public class PharmacyModify {
         }
     }
     
-    public static void updateNhanVien(String hovaten) {
+    public static void updateNhanVien(nhanvien nv, String id) {
     	
         Connection connection = null;
         PreparedStatement statement = null;
@@ -390,19 +398,22 @@ public class PharmacyModify {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Pharmacy_management", "root", "");
             
             //query
-            String sql = "update pharmacy set tennhanvien=?,ngaysinh=?,gioitinh=?,sodienthoai=?,diachi=? where tennhanvien = ?";
+            String sql = "update nhanvien set tennhanvien=?,ngaysinh=?,gioitinh=?,hocvan=?,sodienthoai=?,diachi=? where id = ?";
             
             statement = connection.prepareCall(sql);
-            statement.setString(1, std2.getHovaten());
-            statement.setString(2, std2.getNgaysinh());
-            statement.setString(3, std2.getGioitinh());
-            statement.setInt(4, std2.getSodienthoai());
-            statement.setString(5, std2.getDiachi());
-            statement.setString(6, hovaten);
+            statement.setString(1, nv.getHovaten());
+            statement.setString(2, nv.getNgaysinh());
+            statement.setString(3, nv.getGioitinh());
+            statement.setString(4, nv.getHocvan());
+            statement.setInt(5, nv.getSodienthoai());
+            statement.setString(6, nv.getDiachi());
+            statement.setString(7, id);
             
             statement.execute();
+            JOptionPane.showMessageDialog(null, "CẬP NHẬT NHÂN VIÊN THÀNH CÔNG", "THÔNG TIN",
+					JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
-            Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "KHÔNG CÓ NHÂN VIÊN NÀY HOẶC\n LỖI ĐỊNH DẠNG DỮ LIỆU!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
         } finally {
             if(statement != null) {
                 try {
@@ -467,13 +478,13 @@ public class PharmacyModify {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management", "root", "");
             
             //query
-            String sql = "select * from nhanvien order by tennhanvien";
+            String sql = "select * from nhanvien order by id";
             statement = connection.createStatement();
             
             ResultSet resultSet = statement.executeQuery(sql);
             int stt=1;
             while (resultSet.next()) {                
-               	nhanvien std = new nhanvien(stt,resultSet.getString("tennhanvien"), 
+               	nhanvien std = new nhanvien(resultSet.getString("id"),resultSet.getString("tennhanvien"), 
                            resultSet.getString("ngaysinh"), resultSet.getString("gioitinh"), 
                            resultSet.getInt("sodienthoai"), resultSet.getString("hocvan"),
                            resultSet.getString("diachi"));
@@ -486,24 +497,24 @@ public class PharmacyModify {
 		return nhanvienlist;
 	}
 
-	public static nhanvien FindbyName(String name) {
+	public static nhanvien FindbyMaNV(String id) {
 		Connection connection = null;
         PreparedStatement statement = null;
         nhanvien std = null;
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management", "root", "");
 
-            String query ="select * from nhanvien where `tennhanvien` =?";
+            String query ="select * from nhanvien where `id` =?";
             statement = connection.prepareCall(query);
             
-            statement.setString(1, name);
+            statement.setString(1, id);
             
             ResultSet resultSet = statement.executeQuery();
             
             while (resultSet.next()) {                
-            	 std = new nhanvien(resultSet.getString("tennhanvien"), 
+            	 std = new nhanvien(resultSet.getString("id"),resultSet.getString("tennhanvien"), 
                         resultSet.getString("ngaysinh"), resultSet.getString("gioitinh"), 
-                        resultSet.getString("hocvan"), resultSet.getInt("sodienthoai"),resultSet.getString("diachi"));
+                        resultSet.getInt("sodienthoai"), resultSet.getString("hocvan"),resultSet.getString("diachi"));
             	
             }
 		} catch (SQLException ex) {

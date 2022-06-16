@@ -1,9 +1,9 @@
 package nhanvien;
 
 public class nhanvien {
-	private String hovaten, ngaysinh, gioitinh, diachi, hocvan;
-	private int id;
-	public nhanvien(int id, String hovaten, String ngaysinh, String gioitinh, int sodienthoai, String hocvan, String diachi) {
+	private String hovaten, ngaysinh, gioitinh, diachi, hocvan, so_cccd;
+	private String id;
+	public nhanvien(String id, String hovaten, String ngaysinh, String gioitinh, int sodienthoai, String hocvan, String diachi) {
 		super();
 		this.id=id;
 		this.hovaten = hovaten;
@@ -31,10 +31,10 @@ public class nhanvien {
 		this.hocvan = hocvan;
 		this.sodienthoai = sodienthoai;
 	}
-	public int getID() {
+	public String getID() {
 		return id;
 	}
-	public void setID(int id) {
+	public void setID(String id) {
 		this.id = id;
 	}
 	public String getHovaten() {

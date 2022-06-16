@@ -150,6 +150,7 @@ public class ManHinhChinh extends JFrame {
 	private String[] model_gender;
 	private String[] model_hocvan;
 	private JTextField textFieldTienKhachDua;
+	private JTextField textFieldMaNV;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -713,88 +714,105 @@ public class ManHinhChinh extends JFrame {
 		// button print
 		btnPrint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Connection connection = null;
-				PreparedStatement statement = null;
-				PreparedStatement statement1 = null;
-				PreparedStatement statement2 = null;
-				String tCong = String.valueOf(0);
-				if (flag == 0) {
-					try {
-						// lay tat ca danh sach pharmacy de thuc hien truy van query
-						connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management",
-								"root", "");
-						// query
-						String sql = "insert into doanhthu(ngay,total) values(?,?)";
-						statement1 = connection.prepareCall(sql);
-
-						statement1.setString(1, str);
-						statement1.setString(2, tCong);
-
-						statement1.execute();
-						System.out.println("Them thanh cong");
-
-					} catch (SQLException ex) {
-						System.out.println(ex);
-					}
-				}
+				
 				try {
-					// lay tat ca danh sach pharmacy
-					connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Pharmacy_management", "root",
-							"");
+					Double tong= Double.parseDouble(textFieldTongCong.getText());
+					Double tien = Double.parseDouble(textFieldTienKhachDua.getText());
+					if(tien>=tong) {
+						Double tienthua= tien-tong;
+						JOptionPane.showMessageDialog(null, "TIỀN THỪA PHẢI TRẢ CHO KHÁCH LÀ:   "+tienthua+"\n TIẾN HÀNH IN HÓA ĐƠN","THÔNG TIN",JOptionPane.INFORMATION_MESSAGE);
+						Connection connection = null;
+						PreparedStatement statement = null;
+						PreparedStatement statement1 = null;
+						PreparedStatement statement2 = null;
+						String tCong = String.valueOf(0);
+						if (flag == 0) {
+							try {
+								// lay tat ca danh sach pharmacy de thuc hien truy van query
+								connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management",
+										"root", "");
+								// query
+								String sql = "insert into doanhthu(ngay,total) values(?,?)";
+								statement1 = connection.prepareCall(sql);
 
-					String query = "select * from doanhthu where `ngay` =?";
-					statement2 = connection.prepareCall(query);
-					statement2.setString(1, str);
-					ResultSet resultSet = statement2.executeQuery();
-					if (resultSet.next()) {
+								statement1.setString(1, str);
+								statement1.setString(2, tCong);
 
-						String sql = "update doanhthu set total=? where ngay = ?";
-						statement2 = connection.prepareCall(sql);
+								statement1.execute();
+								System.out.println("Them thanh cong");
 
-						statement2.setString(1, String.valueOf(resultSet.getFloat("total") + total));
-						statement2.setString(2, str);
-						statement2.execute();
+							} catch (SQLException ex) {
+								System.out.println(ex);
+							}
+						}
+						try {
+							// lay tat ca danh sach pharmacy
+							connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Pharmacy_management", "root",
+									"");
+
+							String query = "select * from doanhthu where `ngay` =?";
+							statement2 = connection.prepareCall(query);
+							statement2.setString(1, str);
+							ResultSet resultSet = statement2.executeQuery();
+							if (resultSet.next()) {
+
+								String sql = "update doanhthu set total=? where ngay = ?";
+								statement2 = connection.prepareCall(sql);
+
+								statement2.setString(1, String.valueOf(resultSet.getFloat("total") + total));
+								statement2.setString(2, str);
+								statement2.execute();
+							}
+							// query
+
+						} catch (SQLException ex) {
+							System.out.println(ex);
+						}
+
+						try {
+							// lay tat ca danh sach pharmacy
+							connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Pharmacy_management", "root",
+									"");
+
+							String query = "select * from pharmacy where `mathuoc` =?";
+							statement = connection.prepareCall(query);
+							statement.setString(1, mathuocThanhToan.getText());
+							ResultSet resultSet = statement.executeQuery();
+							while (resultSet.next()) {
+								System.out.println(resultSet.getInt("soluong"));
+								int sl = resultSet.getInt("soluong") - Integer.valueOf(soluongThanhToan.getText());
+								System.out.println(sl);
+								String sql = "update pharmacy set soluong=? where mathuoc = ?";
+								statement1 = connection.prepareCall(sql);
+								statement1.setString(1, String.valueOf(sl));
+								statement1.setString(2, mathuocThanhToan.getText());
+								statement1.execute();
+							}
+							// query
+
+						} catch (SQLException ex) {
+							System.out.println(ex);
+						}
+						try {
+
+							txtReceipt.append("====================================\n" + 
+												"\t Tổng tiền phải trả: " + total+
+												"\n\tTiền khách đưa: "+tien
+												+ "\n\n" + "Chúc bạn mạnh khỏe!");
+							txtReceipt.print();
+						} catch (PrinterException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						showTablePharmacy();
+						
+					}else {
+						JOptionPane.showMessageDialog(null, "TIỀN KHÁCH ĐƯA KHÔNG ĐỦ!","THÔNG BÁO", JOptionPane.ERROR_MESSAGE);
 					}
-					// query
-
-				} catch (SQLException ex) {
-					System.out.println(ex);
+					
+				} catch (NumberFormatException e2) {
+					JOptionPane.showMessageDialog(null, "ĐỊNH DẠNG TIỀN KHÔNG HỢP LỆ!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
 				}
-
-				try {
-					// lay tat ca danh sach pharmacy
-					connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Pharmacy_management", "root",
-							"");
-
-					String query = "select * from pharmacy where `mathuoc` =?";
-					statement = connection.prepareCall(query);
-					statement.setString(1, mathuocThanhToan.getText());
-					ResultSet resultSet = statement.executeQuery();
-					while (resultSet.next()) {
-						System.out.println(resultSet.getInt("soluong"));
-						int sl = resultSet.getInt("soluong") - Integer.valueOf(soluongThanhToan.getText());
-						System.out.println(sl);
-						String sql = "update pharmacy set soluong=? where mathuoc = ?";
-						statement1 = connection.prepareCall(sql);
-						statement1.setString(1, String.valueOf(sl));
-						statement1.setString(2, mathuocThanhToan.getText());
-						statement1.execute();
-					}
-					// query
-
-				} catch (SQLException ex) {
-					System.out.println(ex);
-				}
-				try {
-
-					txtReceipt.append("====================================\n" + "\t Tổng tiền phải trả: " + total
-							+ "\n" + "Chúc bạn mạnh khỏe!");
-					txtReceipt.print();
-				} catch (PrinterException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				showTablePharmacy();
 				
 			}
 		});
@@ -1008,6 +1026,7 @@ public class ManHinhChinh extends JFrame {
 		btnResetTraCuu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textFieldTenThuocTraCuu.setText("");
+				showTablePharmacy();
 			}
 		});
 		btnResetTraCuu.setForeground(Color.WHITE);
@@ -1096,10 +1115,10 @@ public class ManHinhChinh extends JFrame {
 		lblDonViTinhQuanLyThuoc.setBounds(48, 165, 111, 27);
 		panelQuanLyThuoc.add(lblDonViTinhQuanLyThuoc);
 
-		model_DVT = new String[] { " ", "Vỉ", "Hộp","Tuýp" };
+		model_DVT = new String[] { " ", "Vỉ", "Hộp","Tuýp","Chai" };
 //		model_index_comboboxCapNhat = new Integer[] {0,1,2}; 
 		comboBoxDVTQuanLyThuoc = new JComboBox<>();
-		comboBoxDVTQuanLyThuoc.setModel(new DefaultComboBoxModel(new String[] { " ", "Vỉ", "Hộp", "Tuýp" }));
+		comboBoxDVTQuanLyThuoc.setModel(new DefaultComboBoxModel(new String[] { " ", "Vỉ", "Hộp", "Tuýp","Chai" }));
 		comboBoxDVTQuanLyThuoc.setFont(new Font("Times New Roman", Font.BOLD, 15));
 		comboBoxDVTQuanLyThuoc.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		comboBoxDVTQuanLyThuoc.setBackground(Color.WHITE);
@@ -1165,8 +1184,6 @@ public class ManHinhChinh extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					btnCapNhatQuanLyThuoc(e);
-					JOptionPane.showMessageDialog(null, "CẬP NHẬT THUỐC THÀNH CÔNG", "THÔNG TIN",
-							JOptionPane.INFORMATION_MESSAGE);
 					showTablePharmacy();
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(null, "NHẬP SAI ĐỊNH DẠNG DỮ LIỆU HOẶC\n THUỐC NÀY ĐÃ CÓ TRONG DANH SÁCH", "CẬP NHẬT THẤT BẠI!",
@@ -1264,7 +1281,7 @@ public class ManHinhChinh extends JFrame {
 				try {
 					btnQuanLyThuocTim(e);
 				} catch (Exception e1) {
-					JOptionPane.showMessageDialog(null, "MÃ THUỐC NÀY KHÔNG TỒN TẠI!","TÌM THẤT BẠI!",JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "KHÔNG TÌM THẤY THUỐC!","THÔNG BÁO",JOptionPane.ERROR_MESSAGE);
 				}
 				;
 			}
@@ -1281,8 +1298,6 @@ public class ManHinhChinh extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					btnThemQuanLyThuoc(e);
-					JOptionPane.showMessageDialog(null, "THÊM THUỐC THÀNH CÔNG", "THÔNG TIN",
-							JOptionPane.INFORMATION_MESSAGE);
 					showTablePharmacy();
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(null, "NHẬP SAI ĐỊNH DẠNG DỮ LIỆU HOẶC\n THUỐC NÀY ĐÃ CÓ TRONG DANH SÁCH", "THÊM THẤT BẠI!",
@@ -1803,6 +1818,8 @@ public class ManHinhChinh extends JFrame {
 		btnResetThongKe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showTabledt();
+				tongcong.setText("");
+				doanhthu.setText("");
 			}
 		});
 		btnResetThongKe.setForeground(Color.WHITE);
@@ -1819,24 +1836,24 @@ public class ManHinhChinh extends JFrame {
 
 		JLabel lblTenNV = new JLabel("Họ và tên");
 		lblTenNV.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblTenNV.setBounds(50, 120, 82, 19);
+		lblTenNV.setBounds(50, 143, 82, 19);
 		panelNhanVien.add(lblTenNV);
 
 		JLabel lblNSinhNV = new JLabel("Ngày sinh");
 		lblNSinhNV.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblNSinhNV.setBounds(50, 164, 85, 22);
+		lblNSinhNV.setBounds(50, 187, 85, 22);
 		panelNhanVien.add(lblNSinhNV);
 
 		textFieldNSinhNV = new JTextField();
 		textFieldNSinhNV.setFont(new Font("Tahoma", Font.BOLD, 15));
 		textFieldNSinhNV.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		textFieldNSinhNV.setColumns(10);
-		textFieldNSinhNV.setBounds(50, 187, 122, 28);
+		textFieldNSinhNV.setBounds(50, 210, 122, 28);
 		panelNhanVien.add(textFieldNSinhNV);
 
 		JLabel lblGTinhNV = new JLabel("Giới tính");
 		lblGTinhNV.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblGTinhNV.setBounds(50, 214, 70, 28);
+		lblGTinhNV.setBounds(50, 237, 70, 28);
 		panelNhanVien.add(lblGTinhNV);
 
 		model_gender = new String[] { " ", "Nam", "Nữ" };
@@ -1845,44 +1862,44 @@ public class ManHinhChinh extends JFrame {
 		gioitinh.setFont(new Font("Tahoma", Font.BOLD, 14));
 		gioitinh.setModel(new DefaultComboBoxModel(new String[] { "", "Nam", "Nữ" }));
 		gioitinh.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
-		gioitinh.setBounds(50, 239, 85, 27);
+		gioitinh.setBounds(50, 262, 85, 27);
 		panelNhanVien.add(gioitinh);
 
 		JLabel lblHVanNV = new JLabel("Học vấn");
 		lblHVanNV.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblHVanNV.setBounds(50, 277, 85, 19);
+		lblHVanNV.setBounds(50, 300, 85, 19);
 		panelNhanVien.add(lblHVanNV);
 
 		model_hocvan = new String[] { " ", "Đại học", "Cấp 3", "Cao đẳng" };
 		hocvan = new JComboBox();
-		hocvan.setModel(new DefaultComboBoxModel(new String[] { "", "Đại học", "Cấp 3", "Cao đẳng" }));
+		hocvan.setModel(new DefaultComboBoxModel(new String[] { " ", "Đại học", "Cấp 3", "Cao đẳng" }));
 		hocvan.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		hocvan.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 15));
-		hocvan.setBounds(50, 301, 122, 25);
+		hocvan.setBounds(50, 324, 122, 25);
 		panelNhanVien.add(hocvan);
 
 		JLabel lblSDTNhanVien = new JLabel("Số điện thoại");
 		lblSDTNhanVien.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblSDTNhanVien.setBounds(50, 337, 102, 19);
+		lblSDTNhanVien.setBounds(50, 360, 102, 19);
 		panelNhanVien.add(lblSDTNhanVien);
 
 		textFieldSDTNhanVien = new JTextField();
 		textFieldSDTNhanVien.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		textFieldSDTNhanVien.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 15));
 		textFieldSDTNhanVien.setColumns(10);
-		textFieldSDTNhanVien.setBounds(50, 357, 133, 28);
+		textFieldSDTNhanVien.setBounds(50, 380, 133, 28);
 		panelNhanVien.add(textFieldSDTNhanVien);
 
 		JLabel lblNewLabel_2_1_1 = new JLabel("Địa chỉ");
 		lblNewLabel_2_1_1.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblNewLabel_2_1_1.setBounds(50, 396, 122, 22);
+		lblNewLabel_2_1_1.setBounds(50, 419, 122, 22);
 		panelNhanVien.add(lblNewLabel_2_1_1);
 
 		textFieldDChiNhanVien = new JTextField();
 		textFieldDChiNhanVien.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 15));
 		textFieldDChiNhanVien.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		textFieldDChiNhanVien.setColumns(10);
-		textFieldDChiNhanVien.setBounds(50, 420, 256, 28);
+		textFieldDChiNhanVien.setBounds(50, 443, 256, 28);
 		panelNhanVien.add(textFieldDChiNhanVien);
 
 		JButton btnThemNhanVien = new JButton("THÊM");
@@ -1901,8 +1918,6 @@ public class ManHinhChinh extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					btnThemNhanVien(e);
-					JOptionPane.showMessageDialog(null, "CẬP NHẬT NHÂN VIÊN THÀNH CÔNG", "THÔNG TIN",
-							JOptionPane.INFORMATION_MESSAGE);
 					showTableNhanVien();
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(null, "NHẬP SAI ĐỊNH DẠNG DỮ LIỆU HOẶC\n ĐÃ TỒN TẠI NHÂN VIÊN TRONG DANH SÁCH", "THÊM KHÔNG THÀNH CÔNG!",
@@ -1915,7 +1930,7 @@ public class ManHinhChinh extends JFrame {
 		btnThemNhanVien.setBackground(new Color(0, 102, 153));
 		btnThemNhanVien.setBorder(null);
 		btnThemNhanVien.setFont(new Font("Tahoma", Font.BOLD, 16));
-		btnThemNhanVien.setBounds(50, 472, 102, 36);
+		btnThemNhanVien.setBounds(50, 495, 102, 36);
 		panelNhanVien.add(btnThemNhanVien);
 
 		JButton btnCapNhatNhanVien = new JButton("CẬP NHẬT");
@@ -1923,8 +1938,6 @@ public class ManHinhChinh extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					btnCapNhatNhanVien(e);
-					JOptionPane.showMessageDialog(null, "CẬP NHẬT NHÂN VIÊN THÀNH CÔNG", "THÔNG TIN",
-							JOptionPane.INFORMATION_MESSAGE);
 					showTableNhanVien();
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(null, "NHẬP SAI ĐỊNH DẠNG DỮ LIỆU HOẶC\n NHÂN VIÊN KHÔNG CÓ TRONG DANH SÁCH", "CẬP NHẬT THẤT BẠI!",
@@ -1948,7 +1961,7 @@ public class ManHinhChinh extends JFrame {
 		btnCapNhatNhanVien.setBorder(null);
 		btnCapNhatNhanVien.setForeground(new Color(255, 255, 255));
 		btnCapNhatNhanVien.setFont(new Font("Tahoma", Font.BOLD, 17));
-		btnCapNhatNhanVien.setBounds(173, 472, 102, 36);
+		btnCapNhatNhanVien.setBounds(173, 495, 102, 36);
 		panelNhanVien.add(btnCapNhatNhanVien);
 
 		JScrollPane scrollPane_5 = new JScrollPane();
@@ -1956,14 +1969,47 @@ public class ManHinhChinh extends JFrame {
 		panelNhanVien.add(scrollPane_5);
 
 		tableNhanVien = new JTable();
+		tableNhanVien.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Connection connection = null;
+				PreparedStatement statement = null;
+				int row = tableNhanVien.getSelectedRow();
+				String id = (String) tableNhanVien.getValueAt(row, 0);
+
+				try {
+					connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management", "root",
+							"");
+					String sql = "SELECT * FROM `nhanvien` where `id` = '"+id+"'";
+					statement = connection.prepareCall(sql);
+					ResultSet resultSet = statement.executeQuery();
+					ResultSet rs = statement.executeQuery(sql);
+					if (rs.next()) {
+						textFieldMaNV.setText(rs.getString("id"));
+						textFieldTenNV.setText(rs.getString("tennhanvien"));
+						textFieldNSinhNV.setText(rs.getString("ngaysinh"));
+						gioitinh.setSelectedItem(rs.getString("gioitinh"));
+						hocvan.setSelectedItem(rs.getString("hocvan"));
+						textFieldSDTNhanVien.setText(rs.getString("sodienthoai"));
+						textFieldDChiNhanVien.setText(rs.getString("diachi"));
+					}
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(null, e2);
+				}
+			}
+		});
 		tableNhanVien.setRowHeight(20);
 		tableNhanVien.setSelectionBackground(new Color(0, 204, 204));
 		tableNhanVien.setGridColor(new Color(0, 153, 204));
 		tableNhanVien.setFont(new Font("Tahoma", Font.BOLD, 14));
-		tableNhanVien.setModel(new DefaultTableModel(new Object[][] {},
-				new String[] { "STT", "H\u1ECD v\u00E0 t\u00EAn", "Ng\u00E0y sinh", "Gi\u1EDBi t\u00EDnh",
-						"H\u1ECDc v\u1EA5n", "S\u1ED1 \u0111i\u1EC7n tho\u1EA1i", "\u0110\u1ECBa ch\u1EC9" }));
-		tableNhanVien.getColumnModel().getColumn(0).setPreferredWidth(30);
+		tableNhanVien.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null, null, null},
+			},
+			new String[] {
+				"M\u00E3 nh\u00E2n vi\u00EAn", "H\u1ECD v\u00E0 t\u00EAn", "Ng\u00E0y sinh", "Gi\u1EDBi t\u00EDnh", "H\u1ECDc v\u1EA5n", "S\u1ED1 \u0111i\u1EC7n tho\u1EA1i", "\u0110\u1ECBa ch\u1EC9"
+			}
+		));
 		tableNhanVien.getColumnModel().getColumn(1).setPreferredWidth(100);
 		tableNhanVien.getColumnModel().getColumn(3).setPreferredWidth(44);
 		tableNhanVien.getColumnModel().getColumn(6).setPreferredWidth(188);
@@ -1981,7 +2027,7 @@ public class ManHinhChinh extends JFrame {
 		textFieldTenNV.setColumns(10);
 		textFieldTenNV.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
 		textFieldTenNV.setBackground(Color.WHITE);
-		textFieldTenNV.setBounds(50, 140, 180, 25);
+		textFieldTenNV.setBounds(50, 163, 180, 25);
 		panelNhanVien.add(textFieldTenNV);
 
 		JButton btnInDSNhanVien = new JButton("IN DANH SÁCH");
@@ -2188,7 +2234,7 @@ public class ManHinhChinh extends JFrame {
 		JLabel lblChiTietNhanVien = new JLabel("CHI TIẾT THÔNG TIN NHÂN VIÊN");
 		lblChiTietNhanVien.setForeground(new Color(0, 51, 102));
 		lblChiTietNhanVien.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 19));
-		lblChiTietNhanVien.setBounds(36, 70, 333, 35);
+		lblChiTietNhanVien.setBounds(36, 56, 333, 35);
 		panelNhanVien.add(lblChiTietNhanVien);
 
 		JSeparator separator_1_1_1 = new JSeparator();
@@ -2202,7 +2248,7 @@ public class ManHinhChinh extends JFrame {
 		btnTimKiemNhanVien.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					btnTimTenNhanVien(e);
+					btnTimMaNhanVien(e);
 				} catch (Exception e1) {
 					JOptionPane.showMessageDialog(null, "KHÔNG CÓ NHÂN VIÊN TRONG DANH SÁCH!","THÔNG BÁO", JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -2223,7 +2269,7 @@ public class ManHinhChinh extends JFrame {
 		btnTimKiemNhanVien.setFont(new Font("Arial", Font.BOLD, 14));
 		btnTimKiemNhanVien.setBorder(null);
 		btnTimKiemNhanVien.setBackground(new Color(0, 102, 153));
-		btnTimKiemNhanVien.setBounds(252, 140, 84, 28);
+		btnTimKiemNhanVien.setBounds(199, 114, 84, 28);
 		panelNhanVien.add(btnTimKiemNhanVien);
 
 		JButton btnXoaNhanVien = new JButton("XÓA");
@@ -2259,7 +2305,7 @@ public class ManHinhChinh extends JFrame {
 		btnXoaNhanVien.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnXoaNhanVien.setBorder(null);
 		btnXoaNhanVien.setBackground(new Color(0, 102, 153));
-		btnXoaNhanVien.setBounds(50, 522, 102, 36);
+		btnXoaNhanVien.setBounds(50, 545, 102, 36);
 		panelNhanVien.add(btnXoaNhanVien);
 
 		JButton btnResetNhanVien = new JButton("RESET");
@@ -2289,8 +2335,20 @@ public class ManHinhChinh extends JFrame {
 		btnResetNhanVien.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnResetNhanVien.setBorder(null);
 		btnResetNhanVien.setBackground(new Color(0, 102, 153));
-		btnResetNhanVien.setBounds(173, 522, 102, 36);
+		btnResetNhanVien.setBounds(173, 545, 102, 36);
 		panelNhanVien.add(btnResetNhanVien);
+		
+		textFieldMaNV = new JTextField();
+		textFieldMaNV.setFont(new Font("Tahoma", Font.BOLD, 15));
+		textFieldMaNV.setColumns(10);
+		textFieldMaNV.setBorder(new MatteBorder(1, 1, 2, 2, (Color) new Color(0, 102, 153)));
+		textFieldMaNV.setBounds(50, 114, 122, 28);
+		panelNhanVien.add(textFieldMaNV);
+		
+		JLabel lblMaNV = new JLabel("Mã nhân viên");
+		lblMaNV.setFont(new Font("Tahoma", Font.BOLD, 15));
+		lblMaNV.setBounds(50, 90, 122, 19);
+		panelNhanVien.add(lblMaNV);
 
 		// this.setVisible(true);
 	}
@@ -2435,7 +2493,7 @@ public class ManHinhChinh extends JFrame {
 			pharmacyList.forEach((Pharmacy) -> {
 
 				tableModel_1.addRow(new Object[] { Pharmacy.getId(), Pharmacy.getTensanpham(), Pharmacy.getDvt(),
-						Pharmacy.getGia(), Pharmacy.getSoluong(), Pharmacy.getCachdung() });
+						Pharmacy.getGia(), Pharmacy.getSoluong(),Pharmacy.getHSD(), Pharmacy.getCachdung() });
 			});
 
 		}
@@ -2469,9 +2527,9 @@ public class ManHinhChinh extends JFrame {
 		comboBoxDVTQuanLyThuoc.setSelectedIndex(i);
 	}
 
-	private void btnTimTenNhanVien(java.awt.event.ActionEvent evt) {
-		String name = textFieldTenNV.getText();
-		nhanvien n = PharmacyModify.FindbyName(name);
+	private void btnTimMaNhanVien(java.awt.event.ActionEvent evt) {
+		String id = textFieldMaNV.getText();
+		nhanvien n = PharmacyModify.FindbyMaNV(id);
 		String hocvan = n.getHocvan();
 		String gioitinh = n.getGioitinh();
 		int i = 0, j = 0;
@@ -2499,16 +2557,15 @@ public class ManHinhChinh extends JFrame {
 	}
 
 	private void btnThemNhanVien(java.awt.event.ActionEvent evt) {
+		String id = textFieldMaNV.getText();
 		String name = textFieldTenNV.getText();
 		String ngsinh = textFieldNSinhNV.getText();
-		String gender = null;
-		String hocvan = null;
-		gender = gioitinh.getSelectedItem().toString();
-		hocvan = this.hocvan.getSelectedItem().toString();
+		String gender = gioitinh.getSelectedItem().toString();
+		String hocvan = this.hocvan.getSelectedItem().toString();
 		int sdt = Integer.parseInt(textFieldSDTNhanVien.getText());
 		String dchi = textFieldDChiNhanVien.getText();
 
-		nhanvien std = new nhanvien(name, ngsinh, gender, sdt, hocvan, dchi);
+		nhanvien std = new nhanvien(id,name, ngsinh, gender, sdt, hocvan, dchi);
 		PharmacyModify.insertNhanVien(std);
 	}
 
@@ -2541,8 +2598,16 @@ public class ManHinhChinh extends JFrame {
 	}
 
 	private void btnCapNhatNhanVien(ActionEvent e) {
+		String id = textFieldMaNV.getText();
 		String name = textFieldTenNV.getText();
-		PharmacyModify.updateNhanVien(name);
+		String nsinh= textFieldNSinhNV.getText();
+		String gender=gioitinh.getSelectedItem().toString();
+		String hvan=hocvan.getSelectedItem().toString();
+		int sdt=Integer.parseInt(textFieldSDTNhanVien.getText());
+		String dchi=textFieldDChiNhanVien.getText();
+		
+		nhanvien nv= new nhanvien(name,nsinh, gender, hvan, sdt, dchi);
+		PharmacyModify.updateNhanVien(nv,id);
 	}
 
 	private void btnXoaNhanVien(ActionEvent e) {
