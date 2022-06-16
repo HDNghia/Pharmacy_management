@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -29,6 +31,9 @@ import java.awt.Image;
 import java.awt.Toolkit;
 
 import javax.swing.border.MatteBorder;
+
+import pharmacy.PharmacyModify;
+
 import javax.swing.JSeparator;
 import javax.swing.JCheckBox;
 
@@ -40,6 +45,7 @@ public class LoginFrame extends javax.swing.JFrame {
 	private JPanel contentPane;
 	private JTextField txtuser;
 	private JPasswordField txtpass;
+	public static boolean option= false;
 
 //	private JComboBox comboBox;
 	/**
@@ -69,7 +75,7 @@ public class LoginFrame extends javax.swing.JFrame {
 		this.setIconImage(imgFrame);
 		
 		setForeground(new Color(0, 0, 0));
-		setTitle("Ä�Äƒng nháº­p tÃ i khoáº£n");
+		setTitle("Đăng nhập tài khoản");
 		setBackground(new Color(255, 255, 255));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -80,35 +86,44 @@ public class LoginFrame extends javax.swing.JFrame {
 		contentPane.setLayout(null);
 		System.out.println("hello");
 
-		JLabel lblNewLabel_1 = new JLabel("Máº¬T KHáº¨U");
+		JLabel lblNewLabel_1 = new JLabel("MẬT KHẨU");
 		lblNewLabel_1.setForeground(new Color(0, 51, 51));
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblNewLabel_1.setBounds(37, 89, 129, 32);
 		contentPane.add(lblNewLabel_1);
 
-		JButton btnNewButton = new JButton("Ä�Äƒng nháº­p");
+		JButton btnNewButton = new JButton("Đăng nhập");
 		btnNewButton.setFont(new Font("Times New Roman", Font.BOLD, 15));
 		btnNewButton.setForeground(new Color(0, 51, 51));
 		btnNewButton.setBackground(new Color(255, 255, 204));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					String query = "SELECT `user_name`, `user_password` FROM `user` WHERE user_name=? and user_password=?";
+					String query = "SELECT `user_name`, `user_password`, `options` FROM `user` WHERE user_name=? and user_password=?";
 					con = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy_management","root","");
 					pst = con.prepareStatement(query);
 					pst.setString(1, txtuser.getText());
 					pst.setString(2, String.valueOf(txtpass.getText()));
 					ResultSet rs = pst.executeQuery();
 					if(rs.next()) {
-						JOptionPane.showMessageDialog(btnNewButton, "Ä�Äƒng nháº­p thÃ nh cÃ´ng!");
+						JOptionPane.showMessageDialog(btnNewButton, "Đăng nhập thành công!");
+						if(rs.getString("options").equals("admin")){
+							option=true;
+						}
+						else {
+							option=false;
+						}
+						setVisible(false);
+						
 						ManHinhChinh a = new ManHinhChinh();
 						a.main(null);
+						
 					}else {
-						JOptionPane.showMessageDialog(btnNewButton, "TÃªn ngÆ°á»�i dÃ¹ng hoáº·c máº­t kháº©u khÃ´ng Ä‘Ãºng!");
+						JOptionPane.showMessageDialog(btnNewButton, "Tên người dùng hoặc mật khẩu không đúng!");
 					}
 
 				} catch (Exception ex) {
-
+					Logger.getLogger(PharmacyModify.class.getName()).log(Level.SEVERE, null, ex);
 				}
 			}
 		});
@@ -132,7 +147,7 @@ public class LoginFrame extends javax.swing.JFrame {
 		
 		contentPane.add(txtpass);
 
-		JLabel lblNewLabel_1_1 = new JLabel("TÃŠN TÃ€I KHOáº¢N");
+		JLabel lblNewLabel_1_1 = new JLabel("TÊN TÀI KHOẢN");
 		lblNewLabel_1_1.setAutoscrolls(true);
 		lblNewLabel_1_1.setForeground(new Color(0, 51, 51));
 		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.BOLD, 17));
@@ -144,14 +159,14 @@ public class LoginFrame extends javax.swing.JFrame {
 		separator.setBounds(10, 40, 414, 2);
 		contentPane.add(separator);
 		
-		JCheckBox checkBoxShowPassword = new JCheckBox("Hiá»ƒn thá»‹ máº­t kháº©u");
+		JCheckBox checkBoxShowPassword = new JCheckBox("Hiển thị mật khẩu");
 		checkBoxShowPassword.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(checkBoxShowPassword.isSelected()) {
 					txtpass.setEchoChar((char)0);
 				}
 				else {
-					txtpass.setEchoChar('*');
+					txtpass.setEchoChar('●');
 				}
 			}
 		});
@@ -165,7 +180,7 @@ public class LoginFrame extends javax.swing.JFrame {
 		separator_1.setBounds(10, 161, 414, 2);
 		contentPane.add(separator_1);
 		
-		JLabel lblNewLabel = new JLabel("Ä�Ä‚NG NHáº¬P");
+		JLabel lblNewLabel = new JLabel("ĐĂNG NHẬP");
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblNewLabel.setForeground(new Color(0, 51, 51));
 		lblNewLabel.setBounds(170, 11, 114, 21);
@@ -190,7 +205,7 @@ public class LoginFrame extends javax.swing.JFrame {
 		btnReset.setBounds(301, 178, 101, 32);
 		contentPane.add(btnReset);
 		
-		JButton btnHuy = new JButton("Há»§y");
+		JButton btnHuy = new JButton("Hủy");
 		btnHuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
@@ -204,5 +219,8 @@ public class LoginFrame extends javax.swing.JFrame {
 		contentPane.add(btnHuy);
 
 	}
+	
+	public static boolean isAdmin() {
+		return option;
+	}
 }
-
